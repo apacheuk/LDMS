@@ -27,34 +27,32 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     
     END check_department_id;
     
-    /*  checks to see if a manager id exists
-        we could add check here for job_title as well, but not
-        a requirement at the moment as job_title is free format text
+    /*  checks to see if a emp id exists
         accepts:-
-            p_manager_id - the id of the manager to be checked
+            p_emp_id - the id of the employee to be checked
         returns:-
             l_found - 'FALSE' if record NOT found
     */
-    FUNCTION check_manager_id (p_manager_id IN employees_file.manager_id%TYPE) RETURN VARCHAR2 IS
-        CURSOR check_manager_id (cv_manager_id IN employees_file.manager_id%TYPE) IS
+    FUNCTION check_emp_id (p_emp_id IN employees_file.employee_id%TYPE) RETURN VARCHAR2 IS
+        CURSOR check_emp_id (cv_emp_id IN employees_file.employee_id%TYPE) IS
         SELECT 'TRUE'
         FROM employees_file
-        WHERE employee_id = cv_manager_id;
+        WHERE employee_id = cv_emp_id;
         
         l_found VARCHAR2(10) := 'TRUE';
         
     BEGIN
     
-        OPEN check_manager_id (p_manager_id);
-        FETCH check_manager_id INTO l_found;
-        IF (check_manager_id%NOTFOUND) THEN
+        OPEN check_emp_id (p_emp_id);
+        FETCH check_emp_id INTO l_found;
+        IF (check_emp_id%NOTFOUND) THEN
             l_found := 'FALSE';
         END IF;
-        CLOSE check_manager_id;
+        CLOSE check_emp_id;
         
         RETURN l_found;
     
-    END check_manager_id;    
+    END check_emp_id;   
     
     /*  used to validate the department
         accepts:-
@@ -111,7 +109,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     */
     PROCEDURE validate_manager_id(p_manager_id IN employees_file.manager_id%TYPE) IS
     BEGIN
-        IF (check_manager_id(p_manager_id) = 'FALSE') THEN
+        IF (check_emp_id(p_manager_id) = 'FALSE') THEN
             RAISE_APPLICATION_ERROR(-20401, 'Manger does not exist!');
         END IF;
     END validate_manager_id;
@@ -128,8 +126,49 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         IF (length(p_job_title) > 50) THEN
             RAISE_APPLICATION_ERROR(-20501, 'Job title description is too big (max: 50)!');
         END IF;
-    END validate_job_title;    
-
+    END validate_job_title;   
+    
+    /*  used to validate the employee name, can not be greater than 50 charcters
+        no other validation at this point
+        accepts:-
+            p_employee_name - Employees name
+        raises:-
+            -20601 Employees Name too long!;
+    */
+    PROCEDURE validate_employee_name(p_employee_name IN employees_file.employee_name%TYPE) IS
+    BEGIN
+        IF (length(p_employee_name) > 50) THEN
+            RAISE_APPLICATION_ERROR(-20601, 'Employee Name is too big (max: 50)!');
+        END IF;
+    END validate_employee_name;    
+    
+    /*  used to validate the employee id
+        accepts:-
+            p_emp_id - employee id to check
+            p_check_type - EXISTS - will check for existence of a row (DEFAULT)
+                           NOTEXISTS - will check if row missing
+        raises:-
+            -20701 Employee ID can not be null!;
+            -20702 Employee ID already exsist!;
+    */
+    PROCEDURE validate_employee_id(p_emp_id IN employees_file.employee_id%TYPE,
+                                   p_check_type IN VARCHAR2 DEFAULT 'EXISTS') IS
+    BEGIN
+        IF (p_emp_id IS NULL) THEN
+            RAISE_APPLICATION_ERROR(-20701, 'Employee ID cannot be null!');
+        END IF;
+        IF (p_check_type = 'EXISTS') THEN
+            IF (check_emp_id(p_emp_id) = 'TRUE') THEN
+                RAISE_APPLICATION_ERROR(-20702, 'Employee ID already exists!');
+            END IF;
+        ELSE
+            IF (check_emp_id(p_emp_id) = 'FALSE') THEN
+                RAISE_APPLICATION_ERROR(-20702, 'Employee ID does not exist!');
+            END IF;        
+        END IF;
+    END validate_employee_id;
+    
+    
     /*  use to create an employee 
         accepts:-
             p_id
@@ -171,9 +210,19 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         PRAGMA EXCEPTION_INIT(e_hire_date, -20302);
         PRAGMA EXCEPTION_INIT(e_manager_id, -20401);
         PRAGMA EXCEPTION_INIT(e_job_title, -20501);
+        PRAGMA EXCEPTION_INIT(e_name, -20601);
+        PRAGMA EXCEPTION_INIT(e_id, -20701);
+        PRAGMA EXCEPTION_INIT(e_id, -20702);
                              
     BEGIN
         dbms_output.put_line('validating params');
+        -- validates the employee id, must not exist!
+        validate_employee_id(p_id);
+        
+        -- validates the employee_name, currently only checks to see 
+        -- breaks length 
+        validate_employee_name(p_name);
+
         -- validates the job_title, currently only checks to see 
         -- breaks length 
         validate_job_title(p_job_title);
@@ -212,9 +261,13 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     EXCEPTION
         WHEN e_id THEN
             -- any additional exception handling?
-            null;
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_name THEN
-            null;
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_job_title THEN
             -- any additional exception handling?
             -- raise error
@@ -236,5 +289,46 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             -- raise error
             RAISE;
     END create_employee;
+
+    /*  returns an employees salary
+        accepts:-
+            p_emp_id - employee id
+            p_percentage - percentage increase/decrease expressed as a number
+        raises:-
+            e_emp_id - raised when invlaid emp_id is passed
+        returns:-
+            salary of employee passed in
+    */
+    FUNCTION get_salary (p_emp_id IN employees_file.employee_id%TYPE) RETURN employees_file.salary%TYPE AS
+        CURSOR get_salary(cv_emp_id employees_file.employee_id%TYPE) IS
+        SELECT salary
+        FROM employees_file
+        WHERE employee_id = cv_emp_id;
+        
+        l_salary employees_file.salary%TYPE;
+
+        e_id EXCEPTION;
+
+        PRAGMA EXCEPTION_INIT(e_id, -20701);
+        PRAGMA EXCEPTION_INIT(e_id, -20703);
+        
+    BEGIN
+        -- validate employee id
+        validate_employee_id(p_emp_id => p_emp_id, 
+                             p_check_type => 'NOTEXISTS');
+
+        -- employee_id already validated
+        OPEN get_salary (p_emp_id);
+        FETCH get_salary INTO l_salary;
+        CLOSE get_salary;
+        
+        return l_salary;
+    EXCEPTION
+        WHEN e_id THEN
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
+
+    END get_salary;
 
 END employees_file_api;

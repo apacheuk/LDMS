@@ -163,7 +163,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             END IF;
         ELSE
             IF (check_emp_id(p_emp_id) = 'FALSE') THEN
-                RAISE_APPLICATION_ERROR(-20702, 'Employee ID does not exist!');
+                RAISE_APPLICATION_ERROR(-20703, 'Employee ID does not exist!');
             END IF;        
         END IF;
     END validate_employee_id;
@@ -330,5 +330,48 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             RAISE;
 
     END get_salary;
+
+    /*  moves an employee from one department to another
+        accepts:-
+            p_emp_id - employee id
+            p_new_dept_id - new department id
+        raises:-
+            e_dept_id -20101 Department ID cannot be null
+                      -20102 Department ID does not exist   
+    */
+    PROCEDURE move_employee (p_emp_id IN employees_file.employee_id%TYPE,
+                             p_new_dept_id IN departments_file.department_id%TYPE) IS
+
+        e_dept EXCEPTION;
+        e_id EXCEPTION;
+
+        PRAGMA EXCEPTION_INIT(e_dept, -20101);
+        PRAGMA EXCEPTION_INIT(e_dept, -20102); 
+        PRAGMA EXCEPTION_INIT(e_id, -20701);
+        PRAGMA EXCEPTION_INIT(e_id, -20703);        
+        
+    BEGIN
+        -- validate employee id, this will check for null emp_id and
+        -- if the emp_id is a valid one
+        validate_employee_id(p_emp_id => p_emp_id, 
+                             p_check_type => 'NOTEXISTS');
+    
+        -- validate department check for null and invalid id
+        validate_department(p_new_dept_id);
+        
+        UPDATE employees_file
+        SET department_id = p_new_dept_id
+        WHERE employee_id = p_emp_id;
+    EXCEPTION
+        WHEN e_id THEN
+            -- any additional exception handling?
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
+        WHEN e_dept THEN
+            -- any additional exception handling?
+            -- raise error
+            RAISE;                
+    END move_employee;
 
 END employees_file_api;

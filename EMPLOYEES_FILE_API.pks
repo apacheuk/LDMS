@@ -30,7 +30,6 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
     /*  returns an employees salary
         accepts:-
             p_emp_id - employee id
-            p_percentage - percentage increase/decrease expressed as a number
         raises:-
             e_emp_id - raised when invlaid emp_id is passed
         returns:-
@@ -41,5 +40,16 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
 --    PROCEDURE modify_salary(p_emp_id IN employees_file.employee_id%TYPE,
 --                            p_percentage IN NUMBER,
 --                            p_)                               
+
+    /*  moves an employee from one department to another
+        accepts:-
+            p_emp_id - employee id
+            p_new_dept_id - new department id
+        raises:-
+            e_dept_id -20101 Department ID cannot be null
+                      -20102 Department ID does not exist   
+    */
+    PROCEDURE move_employee (p_emp_id IN employees_file.employee_id%TYPE,
+                             p_new_dept_id IN departments_file.department_id%TYPE);
 
 END employees_file_api;

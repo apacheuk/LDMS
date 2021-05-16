@@ -115,6 +115,20 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             RAISE_APPLICATION_ERROR(-20401, 'Manger does not exist!');
         END IF;
     END validate_manager_id;
+    
+    /*  used to validate the job title, can not be greater than 50 charcters
+        no other validation at this point
+        accepts:-
+            p_job_title - job_title
+        raises:-
+            -20501 job title description too long!;
+    */
+    PROCEDURE validate_job_title(p_job_title IN employees_file.job_title%TYPE) IS
+    BEGIN
+        IF (length(p_job_title) > 50) THEN
+            RAISE_APPLICATION_ERROR(-20501, 'Job title description is too big (max: 50)!');
+        END IF;
+    END validate_job_title;    
 
     /*  use to create an employee 
         accepts:-
@@ -156,8 +170,14 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         PRAGMA EXCEPTION_INIT(e_salary, -20202);
         PRAGMA EXCEPTION_INIT(e_hire_date, -20302);
         PRAGMA EXCEPTION_INIT(e_manager_id, -20401);
+        PRAGMA EXCEPTION_INIT(e_job_title, -20501);
                              
     BEGIN
+        dbms_output.put_line('validating params');
+        -- validates the job_title, currently only checks to see 
+        -- breaks length 
+        validate_job_title(p_job_title);
+        
         -- validates the manager id, must exist but can be null!
         IF (p_manager_id IS NOT NULL) THEN
             validate_manager_id(p_manager_id);
@@ -171,7 +191,8 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     
         -- validate department check for null and invalid id
         validate_department(p_dept_id);
-    
+        
+        dbms_output.put_line('inserting row');    
         INSERT INTO employees_file (employee_id,
                                     employee_name,
                                     job_title,
@@ -187,22 +208,33 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
                 p_salary,
                 p_dept_id);
 
-    
+        dbms_output.put_line('ending');
     EXCEPTION
         WHEN e_id THEN
+            -- any additional exception handling?
             null;
         WHEN e_name THEN
             null;
         WHEN e_job_title THEN
-            null;
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_manager_id THEN
-            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_hire_date THEN
-            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_salary THEN
-            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
         WHEN e_dept THEN
-            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);    
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
     END create_employee;
 
 END employees_file_api;

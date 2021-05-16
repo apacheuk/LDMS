@@ -40,7 +40,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             RAISE_APPLICATION_ERROR(-20101, 'Department ID cannot be null!');
         END IF;
         IF (check_department_id(p_dept_id) = 'FALSE') THEN
-            RAISE_APPLICATION_ERROR(-20101, 'Department ID does not exist!');
+            RAISE_APPLICATION_ERROR(-20102, 'Department ID does not exist!');
         END IF;
     END validate_department;
 
@@ -60,6 +60,19 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             RAISE_APPLICATION_ERROR(-20202,'Salary can not be negative');
         END IF;    
     END validate_salary;
+
+    /*  used to validate the hire_Date, can not be null
+        accepts:-
+            p_date_hired - hire date
+        raises:-
+            -20301 hire date cannot be null;
+    */
+    PROCEDURE validate_hire_date(p_date_hired IN employees_file.date_hired%TYPE) IS
+    BEGIN
+        IF (p_date_hired IS NULL) THEN
+            RAISE_APPLICATION_ERROR(-20301,'Hire Date cannot be NULL!');
+        END IF;
+    END validate_hire_date;
 
 
     /*  use to create an employee 
@@ -97,10 +110,17 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         e_dept EXCEPTION;
         
         PRAGMA EXCEPTION_INIT(e_dept, -20101);
+        PRAGMA EXCEPTION_INIT(e_salary, -20201);
+        PRAGMA EXCEPTION_INIT(e_salary, -20202);
                              
     BEGIN
+        -- validates hire date, cannot be null
+        validate_hire_date(p_date_hired);
     
-        -- validate deptmm check for null and invalid id
+        -- validate salary, check for too big and negative
+        validate_salary(p_salary);
+    
+        -- validate department check for null and invalid id
         validate_department(p_dept_id);
     
         INSERT INTO employees_file (employee_id,
@@ -131,7 +151,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         WHEN e_hire_date THEN
             null;
         WHEN e_salary THEN
-            null;
+            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
         WHEN e_dept THEN
             RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);    
     END create_employee;

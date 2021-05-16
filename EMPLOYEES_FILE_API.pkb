@@ -27,6 +27,35 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     
     END check_department_id;
     
+    /*  checks to see if a manager id exists
+        we could add check here for job_title as well, but not
+        a requirement at the moment as job_title is free format text
+        accepts:-
+            p_manager_id - the id of the manager to be checked
+        returns:-
+            l_found - 'FALSE' if record NOT found
+    */
+    FUNCTION check_manager_id (p_manager_id IN employees_file.manager_id%TYPE) RETURN VARCHAR2 IS
+        CURSOR check_manager_id (cv_manager_id IN employees_file.manager_id%TYPE) IS
+        SELECT 'TRUE'
+        FROM employees_file
+        WHERE employee_id = cv_manager_id;
+        
+        l_found VARCHAR2(10) := 'TRUE';
+        
+    BEGIN
+    
+        OPEN check_manager_id (p_manager_id);
+        FETCH check_manager_id INTO l_found;
+        IF (check_manager_id%NOTFOUND) THEN
+            l_found := 'FALSE';
+        END IF;
+        CLOSE check_manager_id;
+        
+        RETURN l_found;
+    
+    END check_manager_id;    
+    
     /*  used to validate the department
         accepts:-
             p_dept_id - the id of the department to be checked

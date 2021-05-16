@@ -44,6 +44,24 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         END IF;
     END validate_department;
 
+    /*  used to validate the salary, cehcks not to big and not negative
+        accepts:-
+            p_salary - the salary to be checked
+        raises:-
+            -20201 Salary to big
+            -20202 salary can not be negative
+    */
+    PROCEDURE validate_salary(p_salary IN employees_file.salary%TYPE) IS
+    BEGIN
+        IF (p_salary > 9999999999) THEN
+            RAISE_APPLICATION_ERROR(-20201,'Salary too big!');
+        END IF;
+        IF (p_salary < 0) THEN
+            RAISE_APPLICATION_ERROR(-20202,'Salary can not be negative');
+        END IF;    
+    END validate_salary;
+
+
     /*  use to create an employee 
         accepts:-
             p_id

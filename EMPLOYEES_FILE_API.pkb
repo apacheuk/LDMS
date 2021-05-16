@@ -133,14 +133,18 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         accepts:-
             p_employee_name - Employees name
         raises:-
-            -20601 Employees Name too long!;
+            -20601 Employee Name can not be null!;
+            -20602 Employees Name too long!;
     */
     PROCEDURE validate_employee_name(p_employee_name IN employees_file.employee_name%TYPE) IS
     BEGIN
+        IF (p_employee_name IS NULL) THEN
+            RAISE_APPLICATION_ERROR(-20601, 'Employee Name can not be null!');
+        END IF;    
         IF (length(p_employee_name) > 50) THEN
-            RAISE_APPLICATION_ERROR(-20601, 'Employee Name is too big (max: 50)!');
+            RAISE_APPLICATION_ERROR(-20602, 'Employee Name is too big (max: 50)!');
         END IF;
-    END validate_employee_name;    
+    END validate_employee_name;   
     
     /*  used to validate the employee id
         accepts:-
@@ -211,6 +215,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         PRAGMA EXCEPTION_INIT(e_manager_id, -20401);
         PRAGMA EXCEPTION_INIT(e_job_title, -20501);
         PRAGMA EXCEPTION_INIT(e_name, -20601);
+        PRAGMA EXCEPTION_INIT(e_name, -20602);
         PRAGMA EXCEPTION_INIT(e_id, -20701);
         PRAGMA EXCEPTION_INIT(e_id, -20702);
                              

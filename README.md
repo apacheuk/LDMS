@@ -45,7 +45,8 @@ This procedure can raise the following exceptions
 | -20301 		 | hire date cannot be null |
 | -20401 		 | Manager does not exsist! |
 | -20501 		 | job title description too long! |
-| -20601 		 | Employees Name too long! |
+| -20601 		 | Employees Name can not be null! |
+| -20602 		 | Employees Name too long! |
 | -20701 		 | Employee ID can not be null! |
 | -20702 		 | Employee ID already exsist! |
 

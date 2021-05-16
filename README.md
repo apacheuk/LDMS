@@ -3,7 +3,7 @@
 To install run ```setup.sql``` once logged into the schema owner
 
 ## Assumptions
-Have assumed all objects will stored in the same schema and user will login as that schema owner, so haven't created synonyms or grants, obivously if that isn't the case these can be easily added.
+Have assumed all objects will be stored in the same schema and user will login as that schema owner, so haven't created synonyms or grants, obivously if that isn't the case these can be easily added.
 
 ### Data Structures
 Departments File
@@ -31,3 +31,16 @@ This procedure accepts the following parameters :-
 | p_salary       | starting salary of employee |
 | p_dept_id      |  Employees department id, must exist in the table ```departments_file``` |
 
+This procedure can raise the following exceptions
+| Code           | Decription |
+| -------------- | ---------- |
+| -20101         | Department ID cannot be null |
+| -20102 		 | Department ID does not exist |
+| -20201 		 | Salary to big |
+| -20202 		 | salary can not be negative |
+| -20301 		 | hire date cannot be null |
+| -20401 		 | Manager does not exsist! |
+| -20501 		 | job title description too long! |
+| -20601 		 | Employees Name too long! |
+| -20701 		 | Employee ID can not be null! |
+| -20702 		 | Employee ID already exsist! |

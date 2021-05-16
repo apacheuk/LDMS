@@ -25,6 +25,6 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
                                p_manager_id IN VARCHAR2,
                                p_date_hired IN DATE,
                                p_salary IN NUMBER,
-                               p_dept_id IN NUMBER);
+                               p_dept_id IN departments_file.department_id%TYPE);
 
 END employees_file_api;

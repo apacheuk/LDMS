@@ -10,25 +10,32 @@ CLEAR BREAKS
 SET TERMOUT ON
 TTITLE CENTER 'List Employees For Department: &_deptname' RIGHT _DATE
 BTITLE  RIGHT 'PAGE:' SQL.PNO SKIP 2
+COLUMN employee_id HEADING 'Employee|ID'
+COLUMN employee_name FORMAT A30 HEADING 'Employee|Name'
+COLUMN job_title FORMAT A20 HEADING 'Job Title'
+COLUMN manager_id HEADING 'Manger|ID'
+COLUMN date_hired HEADING 'Date Hired'
+COLUMN salary HEADING 'Salary'
 COLUMN department_id HEADING 'Department|ID'
 COLUMN department_name HEADING 'Department|Name'
+COLUMN managers_name FORMAT A30 HEADING 'Managers|Name'
 COLUMN sum(salary) HEADING 'Total Salary'
-COLUMN sum(salary) FORMAT 999,999,990.00
 SET LINESIZE 180
 
 
-spool total_salaries_by_department.lis
+SPOOL list_employees_by_department.lis
 
-select  ef.employee_id ,
+SELECT  ef.employee_id ,
         ef.employee_name ,
         ef.job_title ,
         ef.manager_id ,
+        managers.employee_name managers_name ,
         ef.date_hired ,
         ef.salary ,
         ef.department_id
-from employees_file ef,
-     departments_file df
-where ef.department_id = df.department_id
-AND ef.department_id = &dept;
+FROM employees_file ef,
+     employees_file managers
+WHERE ef.manager_id = managers.employee_id(+)
+AND  ef.department_id = &dept;
 
-spool off
+SPOOL OFF

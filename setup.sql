@@ -47,3 +47,6 @@ INSERT INTO employees_file(employee_id, employee_name, job_title, manager_id, da
 VALUES (90010, 'Mildred Hall', 'Secretary',90001,'12-OCT-1996',35000,1);
 
 commit;
+
+@@employees_file_api.pks
+@@employees_file_api.pkb

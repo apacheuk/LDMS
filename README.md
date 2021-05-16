@@ -13,7 +13,11 @@ Spec doesn't say whether the department ID is just a sequential number or whethe
 Spec doesn't say whether the employee ID is just a sequential number or whether the numbers have significance to the employee name and should be user defined. In this case I have made the assuption that they should be user defined.
 Have made the assumption both salepersons report to Jimmy Willis, manager id is null in the source data - or at least it is for me when viewed through googledocs
 
-## Creating and Employee
+### Reports
+I have assumed all reports to be standard SQL reports run from the command line, no preference was specified
+
+## Procedures and Functions
+### Creating and Employee
 An employee can be created by making a call to the following procedure
 
 ```SQL
@@ -45,7 +49,7 @@ This procedure can raise the following exceptions
 | -20701 		 | Employee ID can not be null! |
 | -20702 		 | Employee ID already exsist! |
 
-## Moving an employee to a new department
+### Moving an employee to a new department
 An employee can moved to a new department by calling the following procedure
 
 ```SQL
@@ -66,7 +70,7 @@ This procedure can raise the following exceptions
 | -20701 		 | Employee ID can not be null! |
 | -20703 		 | Employee ID does not exsist! |
 
-## Obtaining an employees salary
+### Obtaining an employees salary
 An employees salary can be determined by calling the following function
 ```SQL
 employees_file_api.get_salary(p_emp_id)
@@ -79,7 +83,7 @@ This function can raise the following exceptions
 | -20701 		 | Employee ID can not be null! |
 | -20703 		 | Employee ID does not exsist! |
 
-## Modifying an employees salary
+### Modifying an employees salary
 An employees salary can be manipulated by increasing or decreasing the salary via a percentage. Positive to increase, negative to decrease the salary.
 
 This can be achived by calling the following procedure
@@ -94,3 +98,24 @@ This procedure can raise the following exceptions
 | -20202 		 | salary can not be negative |
 | -20701 		 | Employee ID can not be null! |
 | -20703 		 | Employee ID does not exsist! |
+
+## Reports
+All the following reports can be run from the SQL command line
+
+### Total Salaries listed by Department
+Simply run this report from the command line via
+```
+@total_salaries_by_department.sql
+```
+
+This will produce a ```total_salaries_by_department.lis``` file in the same directory that can be view by your favourite text editor.
+
+### List employees by Department
+Simply run this report from the command line via
+```
+@list_employees_by_department.sql
+```
+
+You will be prompted to enter a department ID, this must be a valid department ID form the ```departments_file``` table
+
+This will produce a ```list_employees_by_department.lis``` file in the same directory that can be view by your favourite text editor.

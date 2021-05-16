@@ -293,9 +293,8 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
     /*  returns an employees salary
         accepts:-
             p_emp_id - employee id
-            p_percentage - percentage increase/decrease expressed as a number
         raises:-
-            e_emp_id - raised when invlaid emp_id is passed
+            e_emp_id - raised when invlaid emp_id is null or not valid
         returns:-
             salary of employee passed in
     */
@@ -313,7 +312,8 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         PRAGMA EXCEPTION_INIT(e_id, -20703);
         
     BEGIN
-        -- validate employee id
+        -- validate employee id, this will check for null emp_id and
+        -- if the emp_id is a valid one
         validate_employee_id(p_emp_id => p_emp_id, 
                              p_check_type => 'NOTEXISTS');
 
@@ -322,7 +322,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         FETCH get_salary INTO l_salary;
         CLOSE get_salary;
         
-        return l_salary;
+        RETURN l_salary;
     EXCEPTION
         WHEN e_id THEN
             -- any additional exception handling?

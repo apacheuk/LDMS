@@ -27,4 +27,19 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
                                p_salary IN employees_file.salary%TYPE,
                                p_dept_id IN departments_file.department_id%TYPE);
 
+    /*  returns an employees salary
+        accepts:-
+            p_emp_id - employee id
+            p_percentage - percentage increase/decrease expressed as a number
+        raises:-
+            e_emp_id - raised when invlaid emp_id is passed
+        returns:-
+            salary of employee passed in
+    */
+    FUNCTION get_salary (p_emp_id IN employees_file.employee_id%TYPE) RETURN employees_file.salary%TYPE;
+                               
+--    PROCEDURE modify_salary(p_emp_id IN employees_file.employee_id%TYPE,
+--                            p_percentage IN NUMBER,
+--                            p_)                               
+
 END employees_file_api;

@@ -134,12 +134,12 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
             e_dept - raised when dept is missing
             
     */ 
-    PROCEDURE create_employee (p_id IN NUMBER,
-                               p_name IN VARCHAR2,
-                               p_job_title IN VARCHAR2,
-                               p_manager_id IN VARCHAR2,
-                               p_date_hired IN DATE,
-                               p_salary IN NUMBER,
+    PROCEDURE create_employee (p_id IN employees_file.employee_id%TYPE,
+                               p_name IN employees_file.employee_name%TYPE,
+                               p_job_title IN employees_file.job_title%TYPE,
+                               p_manager_id IN employees_file.manager_id%TYPE,
+                               p_date_hired IN employees_file.date_hired%TYPE,
+                               p_salary IN employees_file.salary%TYPE,
                                p_dept_id IN departments_file.department_id%TYPE) IS
                                
         e_id EXCEPTION;

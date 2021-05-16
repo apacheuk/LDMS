@@ -1,8 +1,47 @@
 CREATE OR REPLACE PACKAGE BODY employees_file_api AS 
 
-    PROCEDURE validate_department(p_dept_id IN NUMBER) IS
+    /*  checks to see if a department id exists
+        accepts:-
+            p_dept_id - the id of the department to be checked
+        returns:-
+            l_found - 'FALSE' if record NOT found
+    */
+    FUNCTION check_department_id (p_dept_id IN departments_file.department_id%TYPE) RETURN VARCHAR2 IS
+        CURSOR check_department_id (cv_department_id IN departments_file.department_id%TYPE) IS
+        SELECT 'TRUE'
+        FROM departments_file
+        WHERE department_id = cv_department_id;
+        
+        l_found VARCHAR2(10) := 'TRUE';
+        
     BEGIN
-        null;    
+    
+        OPEN check_department_id (p_dept_id);
+        FETCH check_department_id INTO l_found;
+        IF (check_department_id%NOTFOUND) THEN
+            l_found := 'FALSE';
+        END IF;
+        CLOSE check_department_id;
+        
+        RETURN l_found;
+    
+    END check_department_id;
+    
+    /*  used to validate the department
+        accepts:-
+            p_dept_id - the id of the department to be checked
+        raises:-
+            -20101 Department ID cannot be null
+            -20102 Department ID does not exist        
+    */
+    PROCEDURE validate_department(p_dept_id IN departments_file.department_id%TYPE) IS
+    BEGIN
+        IF (p_dept_id IS NULL) THEN
+            RAISE_APPLICATION_ERROR(-20101, 'Department ID cannot be null!');
+        END IF;
+        IF (check_department_id(p_dept_id) = 'FALSE') THEN
+            RAISE_APPLICATION_ERROR(-20101, 'Department ID does not exist!');
+        END IF;
     END validate_department;
 
     /*  use to create an employee 
@@ -29,7 +68,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
                                p_manager_id IN VARCHAR2,
                                p_date_hired IN DATE,
                                p_salary IN NUMBER,
-                               p_dept_id IN NUMBER) IS
+                               p_dept_id IN departments_file.department_id%TYPE) IS
                                
         e_id EXCEPTION;
         e_name EXCEPTION;
@@ -38,8 +77,13 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         e_hire_date EXCEPTION;
         e_salary EXCEPTION;
         e_dept EXCEPTION;
+        
+        PRAGMA EXCEPTION_INIT(e_dept, -20101);
                              
     BEGIN
+    
+        -- validate deptmm check for null and invalid id
+        validate_department(p_dept_id);
     
         INSERT INTO employees_file (employee_id,
                                     employee_name,
@@ -71,7 +115,7 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         WHEN e_salary THEN
             null;
         WHEN e_dept THEN
-            null;    
+            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);    
     END create_employee;
 
 END employees_file_api;

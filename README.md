@@ -29,5 +29,5 @@ This procedure accepts the following parameters :-
 | p_manager_id   | Employees Manger id, must be a valid employee themselves |
 | p_hire_date    | Employees hire date |
 | p_salary       | starting salary of employee |
-| p_dept_id        Employees department id, must exist in the table departments_file |S
+| p_dept_id      |  Employees department id, must exist in the table ```departments_file``` |
 

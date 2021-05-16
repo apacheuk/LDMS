@@ -2,6 +2,7 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
 
     /*  use to create an employee 
         accepts:-
+            p_id - Employee id
             p_name - Employees full name
             p_job_title - Employees job title
             p_manager_id - Employees manger id
@@ -9,6 +10,7 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
             p_salary - starting salary of employee
             p_dept_id - Empoyees department id
         raises:-
+            e_id - employee id
             e_name - rasied when Employee name is missing
             e_job_title - raised when job title is missing
             e_manager_id - raised when manager id invalid
@@ -17,7 +19,8 @@ CREATE OR REPLACE PACKAGE employees_file_api AS
             e_dept - raised when dept is missing
             
     */ 
-    PROCEDURE create_employee (p_emp_name IN VARCHAR2,
+    PROCEDURE create_employee (p_id IN NUMBER,
+                               p_name IN VARCHAR2,
                                p_job_title IN VARCHAR2,
                                p_manager_id IN VARCHAR2,
                                p_date_hired IN DATE,

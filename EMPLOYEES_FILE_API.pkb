@@ -331,6 +331,57 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
 
     END get_salary;
 
+    /*  modifies an employees salary, can increase or decrease (+/-) value
+        by percentage, then validates the new salary
+        accepts:-
+            p_emp_id - employee id
+            p_percentage - amount to change salary by, expressed as a percentage
+                           ie. increase by 10%
+        raises:-
+            e_emp_id - raised when invlaid emp_id is passed
+            e_salary - raised when salary is missing or invalid (too big or neg)
+
+    */
+    PROCEDURE modify_salary(p_emp_id IN employees_file.employee_id%TYPE,
+                            p_percentage IN NUMBER) IS
+        l_cur_salary employees_file.salary%TYPE;
+        l_new_salary NUMBER;
+
+        e_salary EXCEPTION;
+        e_id EXCEPTION;
+
+        PRAGMA EXCEPTION_INIT(e_salary, -20201);
+        PRAGMA EXCEPTION_INIT(e_salary, -20202);
+        PRAGMA EXCEPTION_INIT(e_id, -20701);
+        PRAGMA EXCEPTION_INIT(e_id, -20703);   
+    BEGIN
+        -- validate employee id, this will check for null emp_id and
+        -- if the emp_id is a valid one
+        validate_employee_id(p_emp_id => p_emp_id, 
+                             p_check_type => 'NOTEXISTS');
+        
+        -- determine our new salary                             
+        l_cur_salary := get_salary(p_emp_id); 
+        l_new_salary := l_cur_salary + (l_cur_salary * p_percentage / 100);
+        
+        -- now valiadte our new salary
+        validate_salary(l_new_salary);
+        
+        UPDATE employees_file
+        SET salary = l_new_salary
+        WHERE employee_id = p_emp_id;
+    EXCEPTION
+        WHEN e_id THEN
+            -- any additional exception handling?
+            -- any additional exception handling?
+            -- raise error
+            RAISE;
+        WHEN e_salary THEN
+            -- any additional exception handling?
+            -- raise error
+            RAISE;   
+    END modify_salary; 
+
     /*  moves an employee from one department to another
         accepts:-
             p_emp_id - employee id

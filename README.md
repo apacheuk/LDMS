@@ -44,3 +44,53 @@ This procedure can raise the following exceptions
 | -20601 		 | Employees Name too long! |
 | -20701 		 | Employee ID can not be null! |
 | -20702 		 | Employee ID already exsist! |
+
+## Moving an employee to a new department
+An employee can moved to a new department by calling the following procedure
+
+```SQL
+employees_file_api.move_employee(p_emp_id, p_new_dept_id);
+```
+
+This procedure accepts the following parameters :-
+| Parameter Name | Description |
+| ---------------| ------------|
+| p_id           | This is the employee ID to be moved|
+| p_new_dept_id  | This is the new department ID to move to, must exist in the table ```departments_file``` |
+
+This procedure can raise the following exceptions
+| Code           | Decription |
+| -------------- | ---------- |
+| -20101         | Department ID cannot be null |
+| -20102 		 | Department ID does not exist |
+| -20701 		 | Employee ID can not be null! |
+| -20703 		 | Employee ID does not exsist! |
+
+## Obtaining an employees salary
+An employees salary can be determined by calling the following function
+```SQL
+employees_file_api.get_salary(p_emp_id)
+```
+This function returns a ```NUMBER``` data type
+
+This function can raise the following exceptions
+| Code           | Decription |
+| -------------- | ---------- |
+| -20701 		 | Employee ID can not be null! |
+| -20703 		 | Employee ID does not exsist! |
+
+## Modifying an employees salary
+An employees salary can be manipulated by increasing or decreasing the salary via a percentage. Positive to increase, negative to decrease the salary.
+
+This can be achived by calling the following procedure
+```SQL
+employees_file_api.modify_salary(p_emp_id. p_percentage)
+```
+
+This procedure can raise the following exceptions
+| Code           | Decription |
+| -------------- | ---------- |
+| -20201 		 | Salary to big |
+| -20202 		 | salary can not be negative |
+| -20701 		 | Employee ID can not be null! |
+| -20703 		 | Employee ID does not exsist! |

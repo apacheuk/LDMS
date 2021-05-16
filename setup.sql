@@ -1,3 +1,5 @@
+SET DEFINE OFF
+
 DROP TABLE employees_file; 
 DROP TABLE departments_file; 
 
@@ -20,7 +22,7 @@ CREATE TABLE employees_file (employee_id NUMBER(10),
                                
 INSERT INTO departments_file(department_name, location) VALUES ('Management','London');
 INSERT INTO departments_file(department_name, location) VALUES ('Engineering','Cardiff');
-INSERT INTO departments_file(department_name, location) VALUES ('Research '||CHR(38)||' Development','Edinburgh');
+INSERT INTO departments_file(department_name, location) VALUES ('Research & Development','Edinburgh');
 INSERT INTO departments_file(department_name, location) VALUES ('Sales','Belfast');
 
 INSERT INTO employees_file(employee_id, employee_name, job_title, manager_id, date_hired, salary, department_id)

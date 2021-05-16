@@ -103,6 +103,18 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         END IF;
     END validate_hire_date;
 
+    /*  used to validate the manager, must exist
+        accepts:-
+            p_manager_id - employee id of manager
+        raises:-
+            -20401 Manager does not exsist!;
+    */
+    PROCEDURE validate_manager_id(p_manager_id IN employees_file.manager_id%TYPE) IS
+    BEGIN
+        IF (check_manager_id(p_manager_id) = 'FALSE') THEN
+            RAISE_APPLICATION_ERROR(-20401, 'Manger does not exist!');
+        END IF;
+    END validate_manager_id;
 
     /*  use to create an employee 
         accepts:-
@@ -139,10 +151,18 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         e_dept EXCEPTION;
         
         PRAGMA EXCEPTION_INIT(e_dept, -20101);
+        PRAGMA EXCEPTION_INIT(e_dept, -20102);
         PRAGMA EXCEPTION_INIT(e_salary, -20201);
         PRAGMA EXCEPTION_INIT(e_salary, -20202);
+        PRAGMA EXCEPTION_INIT(e_hire_date, -20302);
+        PRAGMA EXCEPTION_INIT(e_manager_id, -20401);
                              
     BEGIN
+        -- validates the manager id, must exist but can be null!
+        IF (p_manager_id IS NOT NULL) THEN
+            validate_manager_id(p_manager_id);
+        END IF;
+        
         -- validates hire date, cannot be null
         validate_hire_date(p_date_hired);
     
@@ -176,9 +196,9 @@ CREATE OR REPLACE PACKAGE BODY employees_file_api AS
         WHEN e_job_title THEN
             null;
         WHEN e_manager_id THEN
-            null;
+            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
         WHEN e_hire_date THEN
-            null;
+            RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
         WHEN e_salary THEN
             RAISE_APPLICATION_ERROR(sqlcode, sqlerrm);
         WHEN e_dept THEN

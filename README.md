@@ -17,7 +17,7 @@ Have made the assumption both salepersons report to Jimmy Willis, manager id is 
 I have assumed all reports to be standard SQL reports run from the command line, no preference was specified
 
 ## Procedures and Functions
-### Creating and Employee
+### Creating an Employee
 An employee can be created by making a call to the following procedure
 
 ```SQL
